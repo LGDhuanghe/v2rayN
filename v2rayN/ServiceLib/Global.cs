@@ -2,8 +2,6 @@ namespace ServiceLib;
 
 public class Global
 {
-    #region const
-
     public const string AppName = "v2rayN";
     public const string GithubUrl = "https://github.com";
     public const string GithubApiUrl = "https://api.github.com/repos";
@@ -42,6 +40,11 @@ public class Global
     public const string KillAsSudoOSXShellFileName = NamespaceSample + "kill_as_sudo_osx_sh";
     public const string KillAsSudoLinuxShellFileName = NamespaceSample + "kill_as_sudo_linux_sh";
     public const string SingboxFakeIPFilterFileName = NamespaceSample + "singbox_fakeip_filter";
+    public const string ChromeRootCertFileName = NamespaceSample + "chrome_roots_pem";
+    public const string MozillaRootCertFileName = NamespaceSample + "mozilla_roots_pem";
+
+    public const string ChromeRootProvider = "chrome";
+    public const string MozillaRootProvider = "mozilla";
 
     public const string DefaultSecurity = "auto";
     public const string DefaultNetwork = "raw";
@@ -90,6 +93,9 @@ public class Global
     public const string XrayLocalCert = "XRAY_LOCATION_CERT";
     public const int SpeedTestPageSize = 1000;
     public const string LinuxBash = "/bin/bash";
+    public const string StringTrue = "true";
+    public const string StringFalse = "false";
+    public const int SqliteMaxBatchSize = 10000;
 
     public const string SingboxDirectDNSTag = "direct_dns";
     public const string SingboxRemoteDNSTag = "remote_dns";
@@ -98,9 +104,7 @@ public class Global
     public const string SingboxFakeDNSTag = "fake_dns";
 
     public const int Hysteria2DefaultHopInt = 30;
-
     public const string PolicyGroupExcludeKeywords = @"剩余|过期|到期|重置|[Rr]emaining|[Ee]xpir|[Rr]eset";
-
     public const string PolicyGroupDefaultAllFilter = $"^(?!.*(?:{PolicyGroupExcludeKeywords})).*$";
 
     public static readonly List<string> PolicyGroupDefaultFilterList =
@@ -207,6 +211,10 @@ public class Global
     };
 
     public const string Hysteria2ProtocolShare = "hy2://";
+
+    public const string Hysteria2RealmProtocolShare = "hysteria2+realm://";
+
+    public const string Hysteria2HttpRealmProtocolShare = "hysteria2+realm+http://";
 
     public const string NaiveHttpsProtocolShare = "naive+https://";
 
@@ -330,12 +338,12 @@ public class Global
 
     public static readonly Dictionary<string, string> KcpHeaderMaskMap = new()
     {
-        { "srtp", "header-srtp" },
-        { "utp", "header-utp" },
-        { "wechat-video", "header-wechat" },
-        { "dtls", "header-dtls" },
-        { "wireguard", "header-wireguard" },
-        { "dns", "header-dns" }
+        { "srtp", "srtp" },
+        { "utp", "utp" },
+        { "wechat-video", "wechat" },
+        { "dtls", "dtls" },
+        { "wireguard", "wireguard" },
+        { "dns", "dns" }
     };
 
     public static readonly List<string> CoreTypes =
@@ -404,6 +412,16 @@ public class Global
         ""
     ];
 
+    public static readonly List<string> FragmentPacketsOptions =
+    [
+        "tlshello",
+        "1-1",
+        "1-2",
+        "1-3",
+        "1-4",
+        "1-5"
+    ];
+
     public static readonly List<string> UserAgent =
     [
         "chrome",
@@ -419,13 +437,6 @@ public class Global
         "packet-up",
         "stream-up",
         "stream-one"
-    ];
-
-    public static readonly List<string> AllowInsecure =
-    [
-        "true",
-        "false",
-        ""
     ];
 
     public static readonly List<string> DomainStrategy =
@@ -478,10 +489,11 @@ public class Global
         "zh-Hans",
         "zh-Hant",
         "en",
-        "fa-Ir",
+        "fa",
         "fr",
         "ru",
-        "hu"
+        "hu",
+        "id"
     ];
 
     public static readonly List<string> Alpns =
@@ -541,7 +553,6 @@ public class Global
         "http",
         "tls",
         "quic",
-        "fakedns",
     ];
 
     public static readonly List<int> TunMtus =
@@ -671,6 +682,14 @@ public class Global
         "mcbe:bedrock.talonmc.net",
     ];
 
+    public static readonly List<string> DefaultRealmStunList =
+    [
+        "turn.cloudflare.com:3478",
+        "stun.nextcloud.com:3478",
+        "stun.sip.us:3478",
+        "global.stun.twilio.com:3478",
+    ];
+
     public static readonly List<string> OutboundTags =
     [
         ProxyTag,
@@ -713,5 +732,42 @@ public class Global
         "reply",
     ];
 
-    #endregion const
+    public static readonly List<string> FakeIPRanges =
+    [
+        "198.18.0.0/15",
+        "11.0.0.0/8",
+    ];
+
+    public static readonly List<string> RootCertProviders =
+    [
+        "system",
+        ChromeRootProvider,
+        MozillaRootProvider,
+    ];
+
+    public static readonly IReadOnlyList<string> TunIPv4Address =
+    [
+        "172.18.0.1/30",
+        "172.31.0.1/30",
+        "172.20.0.1/30",
+        "172.16.0.1/30",
+        "192.168.100.1/30",
+        "10.10.14.1/30",
+        "10.1.0.1/30",
+        "10.0.0.1/30",
+    ];
+
+    // Prefixes must leave room for a peer address (max /126); the sing-box system
+    // stack derives a gateway from the first prefix and rejects single-address prefixes.
+    public static readonly IReadOnlyList<string> TunIPv6Address =
+    [
+        "fc00::172:18:0:1/126",
+        "fc00::172:31:0:1/126",
+        "fc00::172:20:0:1/126",
+        "fc00::172:16:0:1/126",
+        "fc00::192:168:100:1/126",
+        "fc00::10:10:14:1/126",
+        "fc00::10:1:0:1/126",
+        "fc00::10:0:0:1/126",
+    ];
 }

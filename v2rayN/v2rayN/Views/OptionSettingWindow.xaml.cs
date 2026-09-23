@@ -10,10 +10,7 @@ public partial class OptionSettingWindow
     {
         InitializeComponent();
 
-        Owner = Application.Current.MainWindow;
         _config = AppManager.Instance.Config;
-
-        ViewModel = new OptionSettingViewModel(UpdateViewHandler);
 
         clbdestOverride.SelectionChanged += ClbdestOverride_SelectionChanged;
         btnBrowseCustomSystemProxyPacPath.Click += BtnBrowseCustomSystemProxyPacPath_Click;
@@ -32,6 +29,9 @@ public partial class OptionSettingWindow
         cmbMtu.ItemsSource = Global.TunMtus;
         cmbStack.ItemsSource = Global.TunStacks;
         cmbIcmpRoutingPolicy.ItemsSource = Global.TunIcmpRoutingPolicies;
+        cmbIpv4Address.ItemsSource = Global.TunIPv4Address;
+        cmbIpv6Address.ItemsSource = Global.TunIPv6Address;
+        cmbFragmentPackets.ItemsSource = Global.FragmentPacketsOptions;
 
         cmbCoreType1.ItemsSource = Global.CoreTypes;
         cmbCoreType2.ItemsSource = Global.CoreTypes;
@@ -52,8 +52,11 @@ public partial class OptionSettingWindow
         cmbSrsFilesSourceUrl.ItemsSource = Global.SingboxRulesetSources;
         cmbRoutingRulesSourceUrl.ItemsSource = Global.RoutingRulesSources;
         cmbIPAPIUrl.ItemsSource = Global.IPAPIUrls;
+        cmbRootCertificateProvider.ItemsSource = Global.RootCertProviders;
 
         cmbMainGirdOrientation.ItemsSource = Utils.GetEnumNames<EGirdOrientation>();
+
+        _ = InitSettingFont();
 
         this.WhenActivated(disposables =>
         {
@@ -68,10 +71,8 @@ public partial class OptionSettingWindow
             this.Bind(ViewModel, vm => vm.NewPort4LAN, v => v.txtpass.IsEnabled).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.User, v => v.txtuser.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.Pass, v => v.txtpass.Text).DisposeWith(disposables);
-            this.Bind(ViewModel, vm => vm.MuxEnabled, v => v.togmuxEnabled.IsChecked).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.LogEnabled, v => v.toglogEnabled.IsChecked).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.Loglevel, v => v.cmbloglevel.Text).DisposeWith(disposables);
-            this.Bind(ViewModel, vm => vm.DefAllowInsecure, v => v.togdefAllowInsecure.IsChecked).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.DefFingerprint, v => v.cmbdefFingerprint.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.DefUserAgent, v => v.cmbdefUserAgent.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.SendThrough, v => v.txtsendThrough.Text).DisposeWith(disposables);
@@ -81,14 +82,11 @@ public partial class OptionSettingWindow
             this.Bind(ViewModel, vm => vm.HyUpMbps, v => v.txtUpMbps.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.HyDownMbps, v => v.txtDownMbps.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.EnableFragment, v => v.togenableFragment.IsChecked).DisposeWith(disposables);
-
-            //this.Bind(ViewModel, vm => vm.Kcpmtu, v => v.txtKcpmtu.Text).DisposeWith(disposables);
-            //this.Bind(ViewModel, vm => vm.Kcptti, v => v.txtKcptti.Text).DisposeWith(disposables);
-            //this.Bind(ViewModel, vm => vm.KcpuplinkCapacity, v => v.txtKcpuplinkCapacity.Text).DisposeWith(disposables);
-            //this.Bind(ViewModel, vm => vm.KcpdownlinkCapacity, v => v.txtKcpdownlinkCapacity.Text).DisposeWith(disposables);
-            //this.Bind(ViewModel, vm => vm.KcpreadBufferSize, v => v.txtKcpreadBufferSize.Text).DisposeWith(disposables);
-            //this.Bind(ViewModel, vm => vm.KcpwriteBufferSize, v => v.txtKcpwriteBufferSize.Text).DisposeWith(disposables);
-            //this.Bind(ViewModel, vm => vm.Kcpcongestion, v => v.togKcpcongestion.IsChecked).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.EnableFinalFragment, v => v.togenableFinalFragment.IsChecked).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.FragmentPackets, v => v.cmbFragmentPackets.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.FragmentLengths, v => v.txtFragmentLengths.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.FragmentDelays, v => v.txtFragmentDelays.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.FragmentMaxSplit, v => v.txtFragmentMaxSplit.Text).DisposeWith(disposables);
 
             this.Bind(ViewModel, vm => vm.AutoRun, v => v.togAutoRun.IsChecked).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.EnableStatistics, v => v.togEnableStatistics.IsChecked).DisposeWith(disposables);
@@ -113,6 +111,7 @@ public partial class OptionSettingWindow
             this.Bind(ViewModel, vm => vm.SrsFileSourceUrl, v => v.cmbSrsFilesSourceUrl.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.RoutingRulesSourceUrl, v => v.cmbRoutingRulesSourceUrl.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.IPAPIUrl, v => v.cmbIPAPIUrl.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.RootCertProvider, v => v.cmbRootCertificateProvider.Text).DisposeWith(disposables);
 
             this.Bind(ViewModel, vm => vm.NotProxyLocalAddress, v => v.tognotProxyLocalAddress.IsChecked).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.SystemProxyAdvancedProtocol, v => v.cmbsystemProxyAdvancedProtocol.Text).DisposeWith(disposables);
@@ -126,6 +125,9 @@ public partial class OptionSettingWindow
             this.Bind(ViewModel, vm => vm.TunEnableIPv6Address, v => v.togEnableIPv6Address.IsChecked).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.TunIcmpRouting, v => v.cmbIcmpRoutingPolicy.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.TunEnableLegacyProtect, v => v.togEnableLegacyProtect.IsChecked).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.TunRouteExcludeAddress, v => v.txtRouteExcludeAddress.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.TunIPv4Address, v => v.cmbIpv4Address.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.TunIPv6Address, v => v.cmbIpv6Address.Text).DisposeWith(disposables);
 
             this.Bind(ViewModel, vm => vm.CoreType1, v => v.cmbCoreType1.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.CoreType2, v => v.cmbCoreType2.Text).DisposeWith(disposables);
@@ -139,21 +141,6 @@ public partial class OptionSettingWindow
             this.BindCommand(ViewModel, vm => vm.SaveCmd, v => v.btnSave).DisposeWith(disposables);
         });
         WindowsUtils.SetDarkBorder(this, AppManager.Instance.Config.UiItem.CurrentTheme);
-    }
-
-    private async Task<bool> UpdateViewHandler(EViewAction action, object? obj)
-    {
-        switch (action)
-        {
-            case EViewAction.CloseWindow:
-                DialogResult = true;
-                break;
-
-            case EViewAction.InitSettingFont:
-                await InitSettingFont();
-                break;
-        }
-        return await Task.FromResult(true);
     }
 
     private async Task InitSettingFont()

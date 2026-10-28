@@ -1,8 +1,3 @@
-using System.Reflection;
-using ServiceLib.Enums;
-using ServiceLib.Manager;
-using ServiceLib.Models;
-
 namespace ServiceLib.Tests.CoreConfig;
 
 internal static class CoreConfigTestFactory
@@ -205,7 +200,8 @@ internal static class CoreConfigTestFactory
         return node;
     }
 
-    public static CoreConfigContext CreateContext(Config config, ProfileItem node, ECoreType runCoreType)
+    public static CoreConfigContext CreateContext(Config config, ProfileItem node, ECoreType runCoreType,
+        bool hasGlobalIPv6Address = true)
     {
         return new CoreConfigContext
         {
@@ -226,6 +222,7 @@ internal static class CoreConfigTestFactory
             FullConfigTemplate = null,
             IsTunEnabled = config.TunModeItem.EnableTun,
             ProtectDomainList = [],
+            HasGlobalIPv6Address = hasGlobalIPv6Address,
         };
     }
 
